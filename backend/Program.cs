@@ -1,5 +1,8 @@
 using ApplicationContext;
+using System.Linq.Expressions;
+using Entities;
 using EntityGraphQL.AspNet;
+using EntityGraphQL.Schema;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +11,26 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddDbContext<CibContext>(opt => opt.UseInMemoryDatabase("testdb"));
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddGraphQLSchema<CibContext>();
+
+// var schema = SchemaBuilder.FromObject<CibContext>();
+// schema.AddMutationsFrom<CompanyMutations>();
+
+
+// builder.Services.AddSingleton<CompanyMutations>();
+builder.Services.AddSingleton<ComapnyService>();
+
+builder.Services.AddGraphQLSchema<CibContext>(opts =>
+{
+    opts.ConfigureSchema = (schema) =>
+    {
+        // Configure your schema
+        schema.Mutation().Add("AddCompany", "Adding a company mutation", CompanyMutations.AddCompany);
+        // schema.Mutation().AddFrom<CompanyMutations>();
+
+        schema.Subscription().Add("SubscribeCompany","", CompanySubscriptions.OnMessage);
+    };
+});
+// builder.Services.AddSingleton<SchemaProvider<CibContext>>();
 
 builder.Services.AddCors(options =>
     options.AddPolicy("AllowAllOrigins", builder =>
@@ -21,6 +43,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 
+app.UseWebSockets();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -31,9 +54,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseCors("AllowAllOrigins");
 app.UseRouting();
+
+app.UseGraphQLWebSockets<CibContext>();
+
 app.UseAuthorization();
 app.UseEndpoints(routeBuilder =>
 {
@@ -43,3 +68,4 @@ app.UseEndpoints(routeBuilder =>
 });
 
 app.Run();
+
