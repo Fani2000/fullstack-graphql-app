@@ -8,9 +8,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddDbContext<CibContext>(opt => opt.UseInMemoryDatabase("testdb"));
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddGraphQLSchema<CibContext>();
 
+builder.Services.AddCors(options =>
+    options.AddPolicy("AllowAllOrigins", builder =>
+    {
+        builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    }));
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
 
@@ -28,6 +32,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowAllOrigins");
 app.UseRouting();
 app.UseAuthorization();
 app.UseEndpoints(routeBuilder =>
