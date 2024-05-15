@@ -15,6 +15,7 @@ builder.Services.AddEndpointsApiExplorer();
 // var schema = SchemaBuilder.FromObject<CibContext>();
 // schema.AddMutationsFrom<CompanyMutations>();
 
+builder.Services.AddGraphQLValidator();
 
 // builder.Services.AddSingleton<CompanyMutations>();
 builder.Services.AddSingleton<ComapnyService>();
@@ -27,7 +28,7 @@ builder.Services.AddGraphQLSchema<CibContext>(opts =>
         schema.Mutation().Add("AddCompany", "Adding a company mutation", CompanyMutations.AddCompany);
         // schema.Mutation().AddFrom<CompanyMutations>();
 
-        schema.Subscription().Add("SubscribeCompany","", CompanySubscriptions.OnMessage);
+        schema.Subscription().Add("SubscribeCompany","Subscribing to the companies entity", CompanySubscriptions.OnMessage);
     };
 });
 // builder.Services.AddSingleton<SchemaProvider<CibContext>>();

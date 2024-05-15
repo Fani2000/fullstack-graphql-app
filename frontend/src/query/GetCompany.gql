@@ -1,0 +1,9 @@
+query GetCompanies {
+  companies {
+    id
+    inn
+    name
+    status
+    establishmentDate
+  }
+}

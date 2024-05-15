@@ -3,34 +3,57 @@ import { provideApolloClient, useQuery } from "@vue/apollo-composable";
 import { apolloClient } from "./helpers/AplloClient";
 import gql from "graphql-tag";
 import { computed } from "vue";
+// import GetCompany from './query/GetCompany.gql'
 
-const query = provideApolloClient(apolloClient)(() =>
-  useQuery(gql`
-    query GetCompanies{
-      companies {
+const getCompaniesQuery = gql`
+  query GetCompanies {
+    companies {
+      id
+      inn
+      name
+      status
+      establishmentDate
+    }
+  }
+`;
+
+const getProductsQuery = gql`
+  query GetProducts {
+    products {
+      code
+      description
+      id
+      status
+      subProducts {
         id
-        inn
-        name
+        description
+        code
         status
-        establishmentDate
       }
     }
-  `)
-);
-const companies = computed(() => query.result.value?.companies);
+  }
+`;
 
-console.log("Welcome, ", companies.value)
+const query = provideApolloClient(apolloClient)(() =>
+  useQuery(getProductsQuery)
+);
+const companies = computed(() => query.result.value?.products);
+
+console.log("Welcome, ", companies.value);
 </script>
 
 <template>
   <div>
     <h1>Welcome to GraphQL</h1>
     <div v-for="company in companies" :key="company.id">
-      <div>Name: {{company.name}}</div>
-      <div>Status: {{company.status}}</div>
+      <div>Name: {{ company.code }}</div>
+      <div>Description: {{ company.description }}</div>
+      <div>Status: {{ company.status}}</div>
+      <div v-for="subProducts in company.subProducts" :key="subProducts.id">
+        {{ subProducts }}
+      </div>
     </div>
   </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
